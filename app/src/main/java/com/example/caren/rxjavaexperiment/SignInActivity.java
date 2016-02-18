@@ -30,10 +30,7 @@ public class SignInActivity extends AppCompatActivity {
         rx.Observable<TextViewTextChangeEvent> passwordChangeObservable =
                 RxTextView.textChangeEvents(password);
 
-        // force-disable the button
-        submitButton.setBackgroundColor(Color.BLUE);
-
-        Func2<? super TextViewTextChangeEvent, ? super TextViewTextChangeEvent, ? extends Boolean> combineFunction =
+        Func2<? super TextViewTextChangeEvent, ? super TextViewTextChangeEvent, ? extends Boolean> checkEmailAndPasswordLength =
                 new Func2<TextViewTextChangeEvent, TextViewTextChangeEvent, Boolean>() {
                     @Override
                     public Boolean call(TextViewTextChangeEvent t1, TextViewTextChangeEvent t2) {
@@ -41,20 +38,12 @@ public class SignInActivity extends AppCompatActivity {
                     }
                 };
 
-        Action1 a = new Action1<Boolean>() {
+        Action1 handleSubmitButtonState = new Action1<Boolean>() {
             @Override
             public void call(Boolean enabled) {
                 submitButton.setBackgroundColor(enabled ? Color.BLUE : Color.BLACK);
             }
         };
-
-        Func1<? super TextViewTextChangeEvent, Boolean> textLongEnough =
-                new Func1<TextViewTextChangeEvent, Boolean>() {
-                    @Override
-                    public Boolean call(TextViewTextChangeEvent s) {
-                        return s.text().length() > 5;
-                    }
-                };
 
         Action1 changeTextColor = new Action1<TextViewTextChangeEvent>() {
             @Override
@@ -64,8 +53,8 @@ public class SignInActivity extends AppCompatActivity {
         };
 
 
-        Observable.combineLatest(emailChangeObservable, passwordChangeObservable, combineFunction)
-                .subscribe(a);
+        Observable.combineLatest(emailChangeObservable, passwordChangeObservable, checkEmailAndPasswordLength)
+                .subscribe(handleSubmitButtonState);
 
         emailChangeObservable.subscribe(changeTextColor);
     }

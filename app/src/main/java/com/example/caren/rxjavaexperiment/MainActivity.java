@@ -37,17 +37,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        Subscriber toastSubscriber = new Subscriber<TextViewTextChangeEvent>() {
-            public void onCompleted() {}
-
-            public void onError(Throwable e) {}
-
-            public void onNext(TextViewTextChangeEvent s) {
-                Toast.makeText(MainActivity.this, s.text().toString(), Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        Action1 a = new Action1<TextViewTextChangeEvent>() {
+        Action1 warnInvalidEmail = new Action1<TextViewTextChangeEvent>() {
             @Override
             public void call(TextViewTextChangeEvent email) {
                 Toast.makeText(MainActivity.this, "invalid email", Toast.LENGTH_SHORT).show();
@@ -55,12 +45,10 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-
-
         rx.Observable<TextViewTextChangeEvent> textFieldObservable =
                 RxTextView.textChangeEvents(editText);
 
-        Func1<? super TextViewTextChangeEvent, Boolean> predicate =
+        Func1<? super TextViewTextChangeEvent, Boolean> checkIfInvalidEmail =
                 new Func1<TextViewTextChangeEvent, Boolean>() {
                     @Override
                     public Boolean call(TextViewTextChangeEvent s) {
@@ -69,7 +57,15 @@ public class MainActivity extends AppCompatActivity {
                 };
 
         textFieldObservable.subscribe(textViewSubscriber);
-        textFieldObservable.filter(predicate).subscribe(a);
+        textFieldObservable.filter(checkIfInvalidEmail).subscribe(warnInvalidEmail);
+
+
+
+
+
+
+
+
 
         findViewById(R.id.signin).setOnClickListener(new View.OnClickListener() {
             @Override
