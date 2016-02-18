@@ -2,6 +2,7 @@ package com.example.caren.rxjavaexperiment;
 
 import rx.Observable;
 import rx.functions.Action1;
+import rx.functions.Func1;
 import rx.functions.Func2;
 
 import android.graphics.Color;
@@ -20,7 +21,7 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        EditText email = (EditText) findViewById(R.id.email);
+        final EditText email = (EditText) findViewById(R.id.email);
         EditText password = (EditText) findViewById(R.id.password);
         final View submitButton = findViewById(R.id.submit);
 
@@ -47,7 +48,25 @@ public class SignInActivity extends AppCompatActivity {
             }
         };
 
+        Func1<? super TextViewTextChangeEvent, Boolean> textLongEnough =
+                new Func1<TextViewTextChangeEvent, Boolean>() {
+                    @Override
+                    public Boolean call(TextViewTextChangeEvent s) {
+                        return s.text().length() > 5;
+                    }
+                };
+
+        Action1 changeTextColor = new Action1<TextViewTextChangeEvent>() {
+            @Override
+            public void call(TextViewTextChangeEvent enabled) {
+                email.setTextColor(enabled.text().toString().length() > 5 ? Color.GREEN : Color.RED);
+            }
+        };
+
+
         Observable.combineLatest(emailChangeObservable, passwordChangeObservable, combineFunction)
                 .subscribe(a);
+
+        emailChangeObservable.subscribe(changeTextColor);
     }
 }
